@@ -12,6 +12,7 @@
 # gpio模拟串口TX
 该模块用MCU的一个普通gpio口实现了模拟串口TX的功能。该功能的用处在于在一些MCU缺乏硬件串口的情况下，用一个gpio来模拟串口TX，以输出调试信息或者把一些数据发送到对端MCU的串口接收端。
 
+[gpio模拟串口TX](https://github.com/liuhao1946/embedded-software-module/tree/master/gpio%E6%A8%A1%E6%8B%9F%E4%B8%B2%E5%8F%A3TX)
 
 
 

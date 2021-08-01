@@ -4,9 +4,9 @@
 /*
 移植说明：
 
-1、根据自己的需求设置合适的定时任务数量，定时任务数量又CLK_TASK_MAX_NUM决定
+1、根据自己的需求设置合适的定时任务数量，定时任务数量由CLK_TASK_MAX_NUM决定（定义在app_clk.h中）
 
-2、如果要使每个定时任务尽量占用少的RAM，需要更改a_size_t改为unsigned char
+2、如果要使每个定时任务尽量占用少的RAM，需要把a_size_t改为unsigned char（a_size_t在app_clk.h中）
 */
 
 

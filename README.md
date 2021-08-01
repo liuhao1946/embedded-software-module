@@ -17,7 +17,7 @@
 ## 软件定时器
 该模块用于构建软件定时器。可以通过模块提供的API方便且灵活的构建、停止、启动定时任务。也可以轻易的应用于大多数MCU中。
 
-
+[软件定时器](https://github.com/liuhao1946/embedded-software-module/tree/master/%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8)
 
 
 

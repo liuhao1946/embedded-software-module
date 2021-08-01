@@ -4,7 +4,7 @@
 #define _APP_CLK_
 
 
-#define CLK_TASK_MAX_NUM  10  //时钟任务最大数量
+#define CLK_TASK_MAX_NUM  10  //定时任务最大数量
 
 
 

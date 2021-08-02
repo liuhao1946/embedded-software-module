@@ -8,6 +8,7 @@
 ## 索引
  - [gpio模拟串口TX](#仿真串口模块)
  - [软件定时器](#软件定时器模块)
+ - [用python对信号进行仿真分析](#用pyhton对信号进行仿真分析)
 
 ## gpio模拟串口TX
 该模块用MCU的一个普通gpio口实现了模拟串口TX的功能。该功能的用处在于在一些MCU缺乏硬件串口的情况下，用一个gpio来模拟串口TX，以输出调试信息或者把一些数据发送到对端MCU的串口接收端。
@@ -19,8 +20,10 @@
 
 [软件定时器](https://github.com/liuhao1946/embedded-software-module/tree/master/%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8)
 
+## 用pyhton对信号进行仿真分析
+该部分放置的是几篇关于怎么用python做信号仿真与分析的方法，包括滤波器设计、陷波器设计、FFT、希尔伯特变换与希尔伯特-黄变换、小波变换。
 
-
+[用pyhton对信号进行仿真分析](https://github.com/liuhao1946/embedded-software-module/tree/master/%E7%94%A8python%E5%AF%B9%E4%BF%A1%E5%8F%B7%E8%BF%9B%E8%A1%8C%E4%BB%BF%E7%9C%9F%E5%88%86%E6%9E%90)
 
 
 

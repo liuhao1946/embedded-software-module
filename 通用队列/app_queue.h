@@ -190,7 +190,7 @@ uint32_t buf[1024];
 app_batch_queue_init(&bq_test,buf, 4,1024);
 
 2、入队
-db_ble_data_enqueue(&bq_test, test, 5);
+app_batch_data_enqueue(&bq_test, test, 5);
 
 3、出队,有几种方式（假设队列中只有5个数据）
 

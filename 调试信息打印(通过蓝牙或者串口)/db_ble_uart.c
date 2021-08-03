@@ -1,4 +1,5 @@
 #include "db_ble_uart.h"
+#include "app_queue.h"
 
 //这个数据结构是给你参考的，对你可能并没有用处
 typedef struct

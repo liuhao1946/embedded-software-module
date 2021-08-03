@@ -299,20 +299,23 @@ void app_datetime_UTC_to_beijing(datetime_t *utc_time, datetime_t *bj_time, int1
 
     bj_time->day = utc_time->day
     bj_time->month = utc_time->month;
-
+    bj_time->year = utc_time->year;
+    bj_time->hour = utc_time->hour;
+    bj_time->minutes = utc_time->minutes;
+    bj_time->seconds = utc_time->seconds;
 	
-	if (time->month == 1 || time->month == 3 || time->month == 5 || \
-		  time->month == 7 || time->month == 8 || time->month == 10 || time->month == 12)
+	if (bj_time->month == 1 || bj_time->month == 3 || bj_time->month == 5 || \
+		  bj_time->month == 7 || bj_time->month == 8 || bj_time->month == 10 || bj_time->month == 12)
 	{
 		days = 31;
 	}
-	else if (time->month == 4 || time->month == 6 || time->month == 9 || time->month == 11)
+	else if (bj_time->month == 4 || bj_time->month == 6 || bj_time->month == 9 || bj_time->month == 11)
 	{
 		days = 30;
 	}
-	else if (time->month == 2)
+	else if (bj_time->month == 2)
 	{
-		if ((time->year % 400 == 0) || ((time->year % 4 == 0) && (time->year % 100 != 0))) 
+		if ((bj_time->year % 400 == 0) || ((bj_time->year % 4 == 0) && (bj_time->year % 100 != 0))) 
 		{
 			days = 29;
 		}
@@ -322,23 +325,22 @@ void app_datetime_UTC_to_beijing(datetime_t *utc_time, datetime_t *bj_time, int1
 		}
 	}
 	
-	time->hour += time_zone;
-	if (time->hour >= 24)         
+	bj_time->hour += time_zone;
+	if (bj_time->hour >= 24)         
 	{
-		time->hour -= 24;
-		time->day++;
-		if (time->day > days)     
+		bj_time->hour -= 24;
+		bj_time->day++;
+		if (bj_time->day > days)     
 		{
-			time->day = 1;
-			time->month++;
-			if (time->month > 12)  
+			bj_time->day = 1;
+			bj_time->month++;
+			if (bj_time->month > 12)  
 			{
-				time->year++;
+				bj_time->year++;
 			}
 		}
 	}
 }
-
 void app_datetime_get_week(uint8_t *pwk)
 {
   *pwk = app_datetime_week_cal(&datetime);

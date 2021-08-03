@@ -13,9 +13,14 @@
 比如：
 uint16_t test[1024];
 该数组中每个元素为队列的一个元素，每个元素类型为unsigned short int
+
+3、当队列在中断中使用时，为了确保数据的完整性，需要加入中断保护，比如：
+关闭总中断
+app_enqueue(&test,&temp);
+使能总中断
 */
 
-//批量队列的使用，请参考app_queue.h中的描述。这里只给出以app_queue开头的队列的使用方法
+//批量队列(前缀为app_batch)的使用，请参考app_queue.h中的描述。这里只给出以app_queue开头的队列的使用方法
 
 #define APP_Q_MAX 10
 

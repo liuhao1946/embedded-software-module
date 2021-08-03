@@ -206,7 +206,7 @@ len = app_batch_queue_remain_len(&bq_test);
 
 5、判断队列是否为空
 //如果队列非空
-if(app_batch_queue_none(&bq_test) != 0)
+if(app_batch_queue_none(&bq_test) != Q_NONE)
 {
   .......
 }

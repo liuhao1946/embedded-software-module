@@ -382,8 +382,19 @@ int16_t app_batch_queue_none(batch_q_t *bq)
 {
 	if (bq->end == bq->head)
 	{
-		return 0;
+		return Q_NONE;
 	}
 
-	return 1;
+	return Q_NON_NONE;
 }
+
+void app_batch_queue_init(batch_q_t *bq, void *p,uint8_t size, uint16_t len)
+{
+	bq->head = 0;
+	bq->end = 0;
+	bq->size = size;
+	bq->buf_size = len;
+	bq->buf_pos = len - 1;
+	bq->data = p;
+}
+

@@ -63,12 +63,14 @@ main()
         app_queue_traverse(&app_q, &temp, idx);
         if(temp.p == test_target.p)
         {  
-            //可以看到，这里找到要替换的目标后，用test_replace的数据去替换
-            //目标数据.当调用app_dequeue(&app_q，&temp)出队的时候,碰到temp.p = 0
-            //时不执行相应的代码即实现了队列删除功能.这里要注意，temp.p = 0是具有
-            //唯一性的，程序正常执行的时候除非自己故意设置否则是不会出现的
+            /*
+              可以看到，这里找到要替换的目标后，用test_replace的数据去替换
+              目标数据.当调用app_dequeue(&app_q，&temp)出队的时候,碰到temp.p = 0
+              时不执行相应的代码即实现了队列删除功能.这里要注意，temp.p = 0是具有
+              唯一性的，程序正常执行的时候除非自己故意设置否则是不会出现的
 
-            //另外，你也可以在q_buf_t 中再定一个标识变量专门用于身份识别
+              另外，你也可以在q_buf_t 中再定一个标识变量专门用于身份识别
+            */
             app_queue_modify_speci_element(&app_q, idx, &test_replace); 
         }
     }

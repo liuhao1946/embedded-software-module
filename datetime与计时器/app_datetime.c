@@ -106,11 +106,14 @@ void app_datetime_updata(uint16_t sec)
 
 void app_datetime_get_day_before_date(datetime_t *datetime,datetime_t *dt_pre)
 {
+	uint16_t year;
+	
 	if (datetime->month == 3 && datetime->day == 1)
 	{
 		dt_pre->year = datetime->year;
 		dt_pre->month = 2;
-		if ((datetime->year % 400) == 0 || (datetime->year % 4) == 0)
+		year = datetime->year + 2000;
+		if(((year % 400) == 0) || (((year % 4) == 0) && ((year % 100) != 0)))
 		{
 			dt_pre->day = 29;
 		}
@@ -153,6 +156,101 @@ void app_datetime_get_day_before_date(datetime_t *datetime,datetime_t *dt_pre)
 	dt_pre->seconds = datetime->seconds;
 }
 
+void app_datetime_get_day_behind_date(datetime_t *datetime, datetime_t *dt_beh)
+{
+	if (datetime->month == 12)
+	{
+		if (datetime->day == 31)
+		{
+			dt_beh->year = datetime->year + 1;
+			dt_beh->month = 1;
+			dt_beh->day = 1;
+		}
+		else
+		{
+			dt_beh->year = datetime->year;
+			dt_beh->month = datetime->month;
+			dt_beh->day = datetime->day + 1;
+		}
+	}
+	else if (datetime->month == 2)
+	{
+		uint16_t year;
+		uint8_t leap = 0;
+
+		year = datetime->year;
+		dt_beh->year = datetime->year;
+		dt_beh->month = datetime->month;
+		if (((year % 400) == 0) || (((year % 4) == 0) && ((year % 100) != 0)))
+		{
+			leap = 1;
+		}
+		else
+		{
+			leap = 0;
+		}
+
+		if (leap == 1)
+		{
+			if (datetime->day == 29)
+			{
+				dt_beh->month = 3;
+				dt_beh->day = 1;
+			}
+			else
+			{
+				dt_beh->day = datetime->day + 1;
+			}
+		}
+		else
+		{
+			if (datetime->day == 28)
+			{
+				dt_beh->month = 3;
+				dt_beh->day = 1;
+			}
+			else
+			{
+				dt_beh->day = datetime->day + 1;
+			}
+		}
+	}
+	else if (datetime->month == 1 || datetime->month == 3 || datetime->month == 5 || \
+		     datetime->month == 7 || datetime->month == 8 || datetime->month == 10)
+	{
+		dt_beh->year = datetime->year;
+		if (datetime->day == 31)
+		{
+			dt_beh->month = datetime->month + 1;
+			dt_beh->day = 1;
+		}
+		else
+		{
+			dt_beh->month = datetime->month;
+			dt_beh->day = datetime->day + 1;
+		}
+	}
+	else
+	{
+		dt_beh->year = datetime->year;
+		if (datetime->day == 30)
+		{
+			dt_beh->month = datetime->month + 1;
+			dt_beh->day = 1;
+		}
+		else
+		{
+			dt_beh->month = datetime->month;
+			dt_beh->day = datetime->day + 1;
+		}
+	}
+
+	dt_beh->hour = datetime->hour;
+	dt_beh->minutes = datetime->minutes;
+	dt_beh->seconds = datetime->seconds;
+}
+
+
 //time_min <= 24*60(min)
 void app_datetime_get_pre_date_time(datetime_t *dt_cur, datetime_t *p,uint16_t time_min)
 {
@@ -160,7 +258,7 @@ void app_datetime_get_pre_date_time(datetime_t *dt_cur, datetime_t *p,uint16_t t
 	uint16_t delta;
     datetime_t dt_pre;
 	
-	total_min = dt_cur->hour*60 + dt_cur->minutes;
+	total_min = dt_cur->hour*(uint16_t)60 + dt_cur->minutes;
 	if(total_min >= time_min)
 	{
 		delta = total_min - time_min;
@@ -172,7 +270,7 @@ void app_datetime_get_pre_date_time(datetime_t *dt_cur, datetime_t *p,uint16_t t
 	}
 	else
 	{
-	  app_datetime_get_day_before_date(dt_cur,&dt_pre);
+		app_datetime_get_day_before_date(dt_cur,&dt_pre);
 		
 		delta = time_min - total_min;
 		delta = (uint16_t)24 * 60 - delta;
@@ -188,29 +286,41 @@ void app_datetime_get_pre_date_time(datetime_t *dt_cur, datetime_t *p,uint16_t t
 }
 
 //time_min <= 24*60(min)
-void app_datetime_get_behind_date_time(datetime_t *dt_cur, datetime_t *p,uint16_t time_min)
+void app_datetime_get_behind_date_time(datetime_t *dt_cur, datetime_t *p, uint16_t time_min)
 {
-    uint16_t total_min;
-	uint8_t h,m;
-	
-	total_min = dt_cur->hour*60 + dt_cur->minutes;
-	total_min += time_min;
-	
-	h = total_min / 60;
-	m = total_min % 60;
-	
-	p->hour = dt_cur->hour;
-	p->minutes = dt_cur->minutes;
-	p->day = dt_cur->day;
-	p->month = dt_cur->month;
-	p->year = dt_cur->year;
-	p->seconds = dt_cur->seconds;
+	uint16_t total_min;
+	uint16_t delta;
+	uint8_t h, m;
+	datetime_t dt_tmp;
 
-	if(h >= 24)
+	dt_tmp.year = dt_cur->year;
+	dt_tmp.month = dt_cur->month;
+	dt_tmp.day = dt_cur->seconds;
+	dt_tmp.hour = dt_cur->hour;
+	dt_tmp.minutes = dt_cur->minutes;
+	dt_tmp.seconds = dt_cur->seconds;
+
+	total_min = dt_tmp.hour * 60 + dt_tmp.minutes;
+	total_min += time_min;
+
+	if (total_min >= 24*60)
 	{
-		h = 23;
-		m = 59;
+		app_datetime_get_day_behind_date(dt_cur,&dt_tmp);
+
+		delta = total_min - 24 * 60;
+		h = delta / 60;
+		m = delta % 60;
 	}
+	else
+	{
+		h = total_min / 60;
+		m = total_min % 60;
+	}
+
+	p->day = dt_tmp.day;
+	p->month = dt_tmp.month;
+	p->year = dt_tmp.year;
+	p->seconds = dt_tmp.seconds;
 	p->hour = h;
 	p->minutes = m;
 }
@@ -231,7 +341,7 @@ void app_datetime_synch(void )
 	  total_diff = total_diff - sec_cnt*RTC_FREQUEN;
 	}
 	
-  app_datetime_updata(sec_cnt);
+	app_datetime_updata(sec_cnt);
 }
 
 void app_datetime_init(void )
@@ -296,8 +406,9 @@ void app_datetime_get_specify_date_week(datetime_t *dt, uint8_t *pwk)
 void app_datetime_UTC_to_beijing(datetime_t *utc_time, datetime_t *bj_time, int16_t time_zone)
 {
 	uint8_t days = 0;
+	uint16_t year;
 
-    bj_time->day = utc_time->day
+    bj_time->day = utc_time->day;
     bj_time->month = utc_time->month;
     bj_time->year = utc_time->year;
     bj_time->hour = utc_time->hour;
@@ -315,7 +426,8 @@ void app_datetime_UTC_to_beijing(datetime_t *utc_time, datetime_t *bj_time, int1
 	}
 	else if (bj_time->month == 2)
 	{
-		if ((bj_time->year % 400 == 0) || ((bj_time->year % 4 == 0) && (bj_time->year % 100 != 0))) 
+		year = bj_time->year + 2000;
+		if ((year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0))) 
 		{
 			days = 29;
 		}
@@ -341,6 +453,7 @@ void app_datetime_UTC_to_beijing(datetime_t *utc_time, datetime_t *bj_time, int1
 		}
 	}
 }
+
 void app_datetime_get_week(uint8_t *pwk)
 {
   *pwk = app_datetime_week_cal(&datetime);

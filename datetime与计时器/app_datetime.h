@@ -74,12 +74,14 @@ void app_datetime_synch(void );
 //获得datetime指定的日期前一天的时间并保存在dt_pre中
 void app_datetime_get_day_before_date(datetime_t *datetime,datetime_t *dt_pre);
 
+//获得datetime指定的日期后一天的时间并保存在dt_beh中
+void app_datetime_get_day_behind_date(datetime_t *datetime, datetime_t *dt_beh);
+
 //获得dt_cur指定日期前time_min分钟的时间并保存在p中。注意，time_min <= 24*60(分钟)
 void app_datetime_get_pre_date_time(datetime_t *dt_cur,datetime_t *p,uint16_t time_min);
 
 //获得dt_cur指定日期后time_min分钟的时间并保存在p中。注意，time_min < 24*60(分钟)
 void app_datetime_get_behind_date_time(datetime_t *dt_cur, datetime_t *p,uint16_t time_min);
-
 
 /*
 例子：

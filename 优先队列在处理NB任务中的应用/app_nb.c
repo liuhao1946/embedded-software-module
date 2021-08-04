@@ -3,6 +3,10 @@
 
 #define NB_TASK_MAX_NUM 16
 
+
+uint8_t nb_evt_step = 0;
+uint8_t nb_task_st = NB_TASK_IDEL;
+
 ///////////////////////////////////////////////////////
 //nb task
 void app_nb_hal_startup(void );
@@ -185,7 +189,7 @@ nb_list_st_t app_nb_task_none(nb_task_t *phead)
 }
 
 /***************************************************
-* NB CMD : powerkey startup NB module
+* 启动NB模块任务
 ****************************************************/
 void app_nb_hal_startup_done(char *pstr,uint16_t tm)
 {
@@ -213,10 +217,7 @@ void app_nb_hal_startup(void )
 }
 
 /******************************************************************
-* NB command : AT
-* describe   : synchronous baud rate
-* response time : < 300ms
-* response : OK
+发送AT指令
 *******************************************************************/
 uint8_t app_nb_cmd_at_ack(nb_data_t *nb_dt)
 {
@@ -229,7 +230,6 @@ uint8_t app_nb_cmd_at_ack(nb_data_t *nb_dt)
 		return NB_ERR;
 	}
 }
-
 
 void app_nb_cmd_at(char *pstr, uint16_t tm )
 {
@@ -269,11 +269,7 @@ uint8_t app_nb_tx_cmd_at_err(void )
 
 void app_nb_init(void )
 {
-    //app_nb_para_init();
-	nb_pw = NB_POWER_UP;
-
 	app_nb_hal_startup();
-	//2 - send command AT
 	app_nb_tx_cmd_at();
 }
 
@@ -283,15 +279,13 @@ void app_nb_task_clr(void )
 	nb_evt_step = 0;
 }
 
-void app_nb_again_reset(uint16_t tm)
-{
-	//app_nb_para_init();
-	nb_again_init_time = tm;
-}
-
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
+/*
+这个函数需要在串口中调用。当MCU接收模块发过来的完整数据后，就调用该接口，以便MCU完成相关
+的指令匹配
+*/
 void app_nb_rx_handle(uint8_t *p, uint16_t len)
 {
 	if(task != 0 && task->rx != 0)
@@ -306,9 +300,21 @@ void app_nb_rx_handle(uint8_t *p, uint16_t len)
 			nb_evt_step = 1;
 		    app_nb_list_del_speci(&nb_task_head, task);
 		}
-	}	
+	}
 }
 
+/*
+这个函数完成以下几个工作：
+1、调度NB任务，如果出现优先级高的任务，在上一条指令执行完成后(接收超时或者NB模块对相应指令做了应答)，
+立刻执行当前优先级最高的任务
+
+2、当任务执行n（参考app_nb_tx_cmd_at()函数中的opt.tx_try_cnt决定）次后，都没有收到模块应答或者
+收到了模块的错误应答，将根据nb_err[]中的设置进行错误处理(比如初始化参数、重启模块等)。如果第一次
+发送指令模块给出了正确应答，则MCU继续下一个任务，直到不再有其他任务
+
+3、这个函数的调用间隔决定了指令发送间隔与应答超时时间。比如该函数的调用间隔是10ms，发送AT指令后，该
+指令的应答时间应该小于300ms，此时opt.rx_timeout=30(30*10ms=300ms)
+*/
 void app_nb_clk(void )
 {
 	static uint32_t rx_timeout = 0;
@@ -386,7 +392,7 @@ void app_nb_clk(void )
 		        rx_timeout--;
 	        }
 			else
-			{
+			{ 
 				nb_evt_step = 1;
 			}//timeout
 			break;
@@ -394,6 +400,17 @@ void app_nb_clk(void )
 
 }
 
-
-
-
+///////////////////////////////////////////////////////////////
+//模块
+main()
+{
+    app_nb_init();
+    while(1)
+    {
+        if(clk_50ms == 1)
+        {
+            clk_50ms = 0;
+            app_nb_clk();
+        }
+    }
+}

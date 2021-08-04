@@ -197,12 +197,11 @@ typedef struct
 	nb_tx_cb_t tx;
 	nb_rx_cb_t rx;
 	char *pstr;
-  uint16_t rx_timeout;
+    uint16_t rx_timeout;
 	uint16_t tx_interval;
 	uint8_t tx_try_cnt;
 	uint8_t prior;
 	uint8_t err;
-	
 }nb_opt_t;
 
 typedef uint8_t (* nb_err_cb_t)(void );

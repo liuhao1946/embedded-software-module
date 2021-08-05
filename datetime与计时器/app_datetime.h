@@ -36,7 +36,7 @@ typedef struct
 //datetime模块初始化
 void app_datetime_init(void );
 
-//datetime设置
+//datetime设置。要注意，这里的时钟是24小时制的
 void app_datetime_set(datetime_t *dt);
 
 //获得当前datetime
@@ -50,6 +50,9 @@ void app_datetime_get(datetime_t *dt);
 6 - 星期天
 */
 void app_datetime_get_week(uint8_t *pwk);
+
+//把24小时制转换为12小时制
+void app_datetime_f24_to_f12(datetime_t *f_24, datetime_t *f_12);
 
 //获得指定日期对应的星期
 void app_datetime_get_specify_date_week(datetime_t *dt, uint8_t *pwk);

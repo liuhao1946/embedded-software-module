@@ -398,6 +398,23 @@ int app_datetime_week_cal(datetime_t *dt)
 	return week;
 }
 
+void app_datetime_f24_to_f12(datetime_t *f_24, datetime_t *f_12)
+{
+	f_12->year = f_24->year;
+	f_12->month = f_24->month;
+	f_12->day = f_24->day;
+	if (f_24->hour >= 12)
+	{
+		f_12->hour = f_24->hour - 12;
+	}
+	else
+	{
+		f_12->hour = f_24->hour;
+	}
+	f_12->minutes = f_24->minutes;
+	f_12->seconds = f_24->seconds;
+}
+
 void app_datetime_get_specify_date_week(datetime_t *dt, uint8_t *pwk)
 {
 	*pwk = app_datetime_week_cal(dt);
@@ -547,6 +564,6 @@ void app_datetime_sec_chr_syn(void )
 	}
 	if(sec_chr.hour > SEC_CHR_HOUR_MAX)
 	{
-		sec_chr.hour = 99;
+		sec_chr.hour = SEC_CHR_HOUR_MAX;
 	}
 }

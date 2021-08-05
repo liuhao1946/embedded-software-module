@@ -16,6 +16,9 @@ void app_nb_tx_cmd_at(void );
 uint8_t app_nb_tx_cmd_at_err(void );
 
 ///////////////////////////////////////////////////////
+
+//错误表。模块没有应该有的应答时，MCU会重复多次发送指令，当超过了规定次数依然没有收到
+//模块那边的指定应答，则执行错误表中的函数。可结合app_nb_tx_cmd_at()函数来看
 const nb_err_t nb_err[] = 
 {
 	{0},
@@ -188,11 +191,16 @@ nb_list_st_t app_nb_task_none(nb_task_t *phead)
 	return LIST_NON_NULL;
 }
 
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
 /***************************************************
 * 启动NB模块任务
 ****************************************************/
 void app_nb_hal_startup_done(char *pstr,uint16_t tm)
 {
+	//启动电平恢复
     NB_POWERKEY_H;
 }
 
@@ -200,19 +208,29 @@ void app_nb_hal_startup(void )
 {
 	nb_opt_t opt;
 	
+	//指令回调函数。由于启动模块时不需要发串口指令，只需要翻转一下电平即可
 	opt.tx = app_nb_hal_startup_done;
-	opt.tx_interval = app_time_set_clk_ms(800);
+	//不同指令间的发送间隔，假设app_nb_clk()调用间隔是50ms，那么如果我想要发送间隔
+	//为200ms，那么opt.tx_interval = 4（4*50ms=200ms）
+	opt.tx_interval = 4;
+	//指令尝试次数，这里设置10次
 	opt.tx_try_cnt = 1;
 	opt.pstr = 0;
+
+	//该任务的优先级(值越小，优先级越高)
 	opt.prior = 2;
-	
+	//不需要应答
 	opt.rx = 0;
+	//因为不需要应答，所以不存在模块应答的超时时间
 	opt.rx_timeout = 0;
+	//没有错误判断，所以这里写NB_ERR_NONE
 	opt.err = NB_ERR_NONE;
-	
+	//先删除队列中已经存在的相同指令，避免重复
 	app_nb_list_del_speci(&nb_task_head, &opt);
+	//把NB任务链入工作链表
 	app_nb_task_list_reg(&nb_task_head, &opt);
 
+	//启动电平翻转
 	NB_POWERKEY_L;
 }
 
@@ -235,6 +253,8 @@ void app_nb_cmd_at(char *pstr, uint16_t tm )
 {
 	unsigned char cmd[] = "AT\r\n";
 	
+	//这里是你的串口接口
+	//cmd是串口指令，也就是你要向模块发送的数据，tm是该指令的接收模块应答的超时时间
 	SEND_NB_CMD(cmd, sizeof(cmd), tm);
 }
 
@@ -242,19 +262,27 @@ void app_nb_tx_cmd_at(void )
 {
 	nb_opt_t opt;
 	
+	//NB指令回调函数
 	opt.tx = app_nb_cmd_at;
-	opt.tx_interval = app_time_set_clk_ms(100);
+	//不同指令间的发送间隔，假设app_nb_clk()调用间隔是50ms，那么如果我想要发送间隔
+	//为200ms，那么opt.tx_interval = 4（4*50ms=200ms）
+	opt.tx_interval = 4;
+	//指令尝试次数，这里设置10次
 	opt.tx_try_cnt = 10;
+	//如果这个指针指向一个字符串，他会把这个字符串传递给NB指令回调函数的*pstr指针，你可以利用这个
+	//指针发出你想发的指令。要注意，这个指针指向一个字符串必须是一个全局的变量
 	opt.pstr = 0;
 	
 	opt.rx = app_nb_cmd_at_ack;
-	opt.rx_timeout = app_time_set_clk_ms(500);
-	
+	//指令发出后，最多等多久后在次发送。其值同opt.tx_interval
+	opt.rx_timeout = 4;
+	//指令尝试10次后依然没有收到目标应答，则执行错误表中对应的函数
 	opt.err = NB_ERR_AT_CMD_TIMEOUT;
-	
+	//该任务的优先级(值越小，优先级越高)
 	opt.prior = 2;
-	
+	//先删除队列中已经存在的相同指令，避免重复
 	app_nb_list_del_speci(&nb_task_head, &opt);
+	//把NB任务链入工作链表
 	app_nb_task_list_reg(&nb_task_head, &opt);
 }
 
@@ -265,18 +293,6 @@ uint8_t app_nb_tx_cmd_at_err(void )
     /*如果指令出现错误，你可以在这里重启模块、初始化模块参数等*/
 	
 	return 0;
-}
-
-void app_nb_init(void )
-{
-	app_nb_hal_startup();
-	app_nb_tx_cmd_at();
-}
-
-void app_nb_task_clr(void )
-{
-	app_nb_list_del_all(&nb_task_head);
-	nb_evt_step = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -312,8 +328,8 @@ void app_nb_rx_handle(uint8_t *p, uint16_t len)
 收到了模块的错误应答，将根据nb_err[]中的设置进行错误处理(比如初始化参数、重启模块等)。如果第一次
 发送指令模块给出了正确应答，则MCU继续下一个任务，直到不再有其他任务
 
-3、这个函数的调用间隔决定了指令发送间隔与应答超时时间。比如该函数的调用间隔是10ms，发送AT指令后，该
-指令的应答时间应该小于300ms，此时opt.rx_timeout=30(30*10ms=300ms)
+3、这个函数的调用间隔决定了指令发送间隔与等待模块的应答超时时间。比如该函数的调用间隔是10ms，发送
+AT指令后，该指令的应答时间应该小于300ms，此时opt.rx_timeout=30(30*10ms=300ms)
 */
 void app_nb_clk(void )
 {
@@ -326,12 +342,9 @@ void app_nb_clk(void )
 	        {
 				nb_evt_step = 1;
 				nb_task_st = NB_TASK_BUSY;
-				//wakeup 
-				NB_PSM_WAKEUP_L;
 	        }
 			else
 			{
-				NB_PSM_WAKEUP_H;
 				nb_task_st = NB_TASK_IDEL;
 			}
 			break;
@@ -400,8 +413,27 @@ void app_nb_clk(void )
 
 }
 
+//上电初始化
+void app_nb_init(void )
+{
+	//以下两个任务是同级的，所以按照入队顺序执行
+	app_nb_hal_startup();
+	app_nb_tx_cmd_at();
+}
+
+//模块任务初始化
+void app_nb_task_clr(void )
+{
+	app_nb_list_del_all(&nb_task_head);
+	nb_evt_step = 0;
+}
+
 ///////////////////////////////////////////////////////////////
-//模块
+//更具体的例子
+uint8_t rx_uart[1024];
+uint16_t uart_data_len;
+uint8_t clk_50ms;
+
 main()
 {
     app_nb_init();
@@ -412,5 +444,12 @@ main()
             clk_50ms = 0;
             app_nb_clk();
         }
+		
+		if(uart_rx_done == 1)
+		{
+			//接收到完整的串口数据，数据存储在rx_uart，数据长度为uart_data_len
+			uart_rx_done = 0;
+			app_nb_rx_handle(rx_uart, uart_data_len);
+		}
     }
 }

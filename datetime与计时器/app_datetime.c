@@ -55,7 +55,7 @@ void app_datetime_updata(uint16_t sec)
   {
 	 case 2:
         year = datetime.year + 2000;
-	    if((year % 400) == 0 || (year % 4) == 0)
+	    if(((year % 400) == 0) || (((year % 4) == 0) && ((year % 100) != 0)))
 		{
 		  if(datetime.day > 29)
 		  {

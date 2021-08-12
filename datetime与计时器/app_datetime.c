@@ -383,7 +383,7 @@ int app_datetime_week_cal(datetime_t *dt)
 	int week = 0;
 	int y, m, d;
 	
-	y = dt->year;
+	y = dt->year+2000;
 	m = dt->month;
 	d = dt->day;
 		

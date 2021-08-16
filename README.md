@@ -52,7 +52,7 @@
 [优先队列在处理NB任务中的应用](https://github.com/liuhao1946/embedded-software-module/tree/master/%E4%BC%98%E5%85%88%E9%98%9F%E5%88%97%E5%9C%A8%E5%A4%84%E7%90%86NB%E4%BB%BB%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8)
 
 ## 书籍
-这里收集了一些我认为还不错的嵌入式编程有关的书籍，有需要的话自行下载就好
+这里收集了一些我认为还不错的嵌入式编程有关的书籍。主要涉及RTOS编程、软件架构、常用算法以及数据结构。
 
 [书籍](https://github.com/liuhao1946/embedded-software-module/tree/master/%E4%B9%A6%E7%B1%8D)
 

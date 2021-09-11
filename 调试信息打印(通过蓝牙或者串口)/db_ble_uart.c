@@ -89,7 +89,7 @@ static void db_ble_print_inside(char *pformat, ...)
 
 void db_ble_print(char *pformat, ...)
 {
-#if BLE_NOTIFY_EN == 1
+#if (BLE_NOTIFY_EN == 1 && DB_DATA_SEND_INTERFACE == DB_INTER_BLE)
   	if(db_nofify_en_f != DB_NOTI_ENABLE)
 	{
 		return;
@@ -111,7 +111,7 @@ void db_ble_print(char *pformat, ...)
 
 void db_ble_send_str_ex(char *pstr,uint16_t len)
 {
-#if BLE_NOTIFY_EN == 1
+#if (BLE_NOTIFY_EN == 1 && DB_DATA_SEND_INTERFACE == DB_INTER_BLE)
 	if(db_nofify_en_f != DB_NOTI_ENABLE)
 	{
 		return;
@@ -125,7 +125,7 @@ void db_ble_send_str_ex(char *pstr,uint16_t len)
 
 void db_ble_send_str(char *pstr)
 {
-#if BLE_NOTIFY_EN == 1
+#if (BLE_NOTIFY_EN == 1 && DB_DATA_SEND_INTERFACE == DB_INTER_BLE)
 	if(db_nofify_en_f != DB_NOTI_ENABLE)
 	{
 		return;
@@ -142,7 +142,7 @@ void db_ble_send_hex(char *str_head, uint8_t *dt, uint16_t len, char *str_end)
 	uint16_t len_tmp;
 	uint8_t start_f = 0;
 
-#if BLE_NOTIFY_EN == 1
+#if (BLE_NOTIFY_EN == 1 && DB_DATA_SEND_INTERFACE == DB_INTER_BLE)
 	if(db_nofify_en_f != DB_NOTI_ENABLE)
 	{
 		return;
@@ -172,7 +172,7 @@ void db_ble_send_hex(char *str_head, uint8_t *dt, uint16_t len, char *str_end)
 
 void db_ble_send_dec_ex(char *str_head,int16_t *v, uint16_t len,char *str_end)
 {
-#if BLE_NOTIFY_EN == 1	
+#if (BLE_NOTIFY_EN == 1 && DB_DATA_SEND_INTERFACE == DB_INTER_BLE)
 	if(db_nofify_en_f != DB_NOTI_ENABLE)
 	{
 		return;

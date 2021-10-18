@@ -178,7 +178,7 @@ void app_datetime_get_day_behind_date(datetime_t *datetime, datetime_t *dt_beh)
 		uint16_t year;
 		uint8_t leap = 0;
 
-		year = datetime->year;
+		year = datetime->year + 2000;
 		dt_beh->year = datetime->year;
 		dt_beh->month = datetime->month;
 		if (((year % 400) == 0) || (((year % 4) == 0) && ((year % 100) != 0)))

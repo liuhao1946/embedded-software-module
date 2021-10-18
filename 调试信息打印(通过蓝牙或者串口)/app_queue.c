@@ -240,7 +240,8 @@ int32_t app_batch_data_enqueue(batch_q_t *bq, void *p, uint16_t len)
 {
 	uint16_t len_tp;
 	uint16_t head, end;
-	
+	uint16_t temp_end;
+
 	if (p == 0)
 	{
 		return 0;
@@ -254,21 +255,25 @@ int32_t app_batch_data_enqueue(batch_q_t *bq, void *p, uint16_t len)
 		return -1;
 	}
 
-	if (end + len >= bq->buf_size)
+	temp_end = (end + len) & bq->buf_pos;
+	if (end < head && temp_end >= head)
 	{
-		len_tp = bq->buf_size - end;
-		if (len >= len_tp + head)
+		len = head - end - 1;
+	}//溢出
+	else if (end >= head)
+	{
+		if (end + len >= bq->buf_size)
 		{
-			if (head > 0)
+			if (head == 0)
 			{
-				len = len_tp + head - 1;
+				len = bq->buf_size - end - 1;
 			}
-			else
+			else if (temp_end >= head)
 			{
-				len = len_tp - 1;
+				len = bq->buf_size - end + head - 1;
 			}
 		}
-	}
+	}//没有溢出
 
 	len_tp = len;
 	if (bq->size == 1)
@@ -311,11 +316,10 @@ int32_t app_batch_data_enqueue(batch_q_t *bq, void *p, uint16_t len)
 	return len;
 }
 
-int32_t app_batch_data_dequeue(batch_q_t *bq, void *p, uint16_t len)
+int32_t app_batch_data_dequeue(batch_q_t *bq, uint16_t dequeue_len, void *buf,uint8_t buf_max_len)
 {
 	uint16_t len_tp;
 	uint16_t end, head;
-
 
 	end = bq->end;
 	head = bq->head;
@@ -326,27 +330,31 @@ int32_t app_batch_data_dequeue(batch_q_t *bq, void *p, uint16_t len)
 	}
 	else if (head < end)
 	{
-		if ((head + len) > end)
+		if (head + dequeue_len > end)
 		{
-			len = end - head;
+			dequeue_len = end - head;
 		}
 	}
 	else
 	{
 		len_tp = bq->buf_size - head;
-		if (len > len_tp + end)
+		if (dequeue_len > len_tp + end)
 		{
-			len = bq->buf_size - head + end;
+			dequeue_len = bq->buf_size - head + end;
 		}
 	}
 
-	len_tp = len;
+	if (dequeue_len >= buf_max_len)
+	{
+		dequeue_len = buf_max_len;
+	}
+	len_tp = dequeue_len;
 	if (bq->size == 1)
 	{
 		uint8_t *bq8, *q8;
 
 		bq8 = (uint8_t *)bq->data;
-		q8 = (uint8_t *)p;
+		q8 = (uint8_t *)buf;
 		while (len_tp--)
 		{
 			*q8++ = bq8[head++ & bq->buf_pos];
@@ -356,7 +364,7 @@ int32_t app_batch_data_dequeue(batch_q_t *bq, void *p, uint16_t len)
 	{
 		uint16_t *bq16, *q16;
 		bq16 = (uint16_t *)bq->data;
-		q16 = (uint16_t *)p;
+		q16 = (uint16_t *)buf;
 		while (len_tp--)
 		{
 			*q16++ = bq16[head++ & bq->buf_pos];
@@ -366,16 +374,16 @@ int32_t app_batch_data_dequeue(batch_q_t *bq, void *p, uint16_t len)
 	{
 		uint32_t *bq32, *q32;
 		bq32 = (uint32_t *)bq->data;
-		q32 = (uint32_t *)p;
+		q32 = (uint32_t *)buf;
 		while (len_tp--)
 		{
 			*q32++ = bq32[head++ & bq->buf_pos];
 		}
 	}
 
-	bq->head = (bq->head + len) & bq->buf_pos;
+	bq->head = (bq->head + dequeue_len) & bq->buf_pos;
 
-	return len;
+	return dequeue_len;
 }
 
 int16_t app_batch_queue_none(batch_q_t *bq)

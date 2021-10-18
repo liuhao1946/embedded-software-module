@@ -154,7 +154,7 @@ int32_t app_batch_data_enqueue(batch_q_t *bq, void *p, uint16_t len);
 /*
 函数功能：出队
 */
-int32_t app_batch_data_dequeue(batch_q_t *bq, void *p, uint16_t len);
+int32_t app_batch_data_dequeue(batch_q_t *bq, uint16_t dequeue_len,void *p, uint16_t buf_max_len);
 
 /*
 函数功能：判断队列是否为空
@@ -172,6 +172,10 @@ int16_t app_batch_queue_none(batch_q_t *bq);
 */
 void app_batch_queue_init(batch_q_t *bq, void *p,uint8_t size, uint16_t len);
 
+/*
+函数功能：判断队列是否为空，如果为空，返回1，如果非空，返回0
+*/
+uint8_t app_batch_queue_is_none(batch_q_t *bq);
 
 /*
 例子：
@@ -194,10 +198,11 @@ app_batch_data_enqueue(&bq_test, test, 5);
 
 3、出队,有几种方式（假设队列中只有5个数据）
 
-a、出队的数量低于5，则只出两个数据到test_buf
-app_batch_data_dequeue(&bq_test,test_buf, 2);
+a、出队的数量低于5，则只出2个数据到test_buf
+app_batch_data_dequeue(&bq_test, 2, test_buf, 200);
 
 b、出队数量≥5，只出5个数据
+app_batch_data_dequeue(&bq_test, 5, test_buf, 200);
 
 4、判断队列内还剩下多少空间
 uin16_t len;

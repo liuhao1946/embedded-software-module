@@ -19,8 +19,9 @@
 对于串口，则需要依据波特率设定定时间隔。比如9600波特率传输1字节需要1ms左右，那么
 如果你每包数据100字节，那么定时间间隔至少要大于100ms
 */
-#define APP_TIMER_START()    //app_startup_db_ble_timer()
-#define APP_TIMER_STOP()     //app_stop_db_ble_timer();
+#define APP_TIMER_START()     //app_startup_db_ble_timer()
+#define APP_TIMER_STOP()      //app_stop_db_ble_timer();
+#define APP_TIMER_GET_STATE() //获得定时器的开启状态
 
 //////////////////////////////////////////////////////////////////////////////
 

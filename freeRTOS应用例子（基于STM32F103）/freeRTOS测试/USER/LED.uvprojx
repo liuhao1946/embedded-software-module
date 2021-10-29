@@ -383,6 +383,11 @@
           <GroupName>USER</GroupName>
           <Files>
             <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f10x_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\stm32f10x_it.c</FilePath>
@@ -411,11 +416,6 @@
               <FileName>core_cm3.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CORE\core_cm3.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main.c</FilePath>
             </File>
             <File>
               <FileName>startup_stm32f10x_hd.s</FileName>

@@ -97,7 +97,7 @@
             ( pulStack[ 3 ] != ulCheckValue ) )                                                       \
         {                                                                                             \
             vApplicationStackOverflowHook( ( TaskHandle_t ) pxCurrentTCB, pxCurrentTCB->pcTaskName ); \
-        }                                                                                             \
+        }¡¤                                                                                             \
     }
 
 #endif /* #if( configCHECK_FOR_STACK_OVERFLOW > 1 ) */
